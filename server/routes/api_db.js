@@ -1,4 +1,22 @@
 const express = require('express');
+const path = require('path');
+const multer  = require('multer');
+const storage = multer.diskStorage({
+	destination: function (req, file, callback) {
+	  callback(null, '../public/img')
+	},
+	filename: function (req, file, callback) {
+	  const uniqueSuffix = Date.now()+path.extname(file.originalname);// + '-' + Math.round(Math.random() * 1E9)
+	  console.log(/*path.basename(file.originalname)+*/uniqueSuffix);
+	  callback(null,Date.now()+path.extname(file.originalname)/*file.originalname*/);
+	}
+});
+const upload = multer({ 
+	storage: storage,
+	limits: {
+		fileSize:1024*1024*2
+	} 
+});
 const router = express.Router()
 const db = require('./db');
 
@@ -7,6 +25,7 @@ router.get('/test',(req,res)=>{
 	res.send('Hello World!');
 })
 
+//게시물=======================================================================
 router.get('/getNotices',(req,res)=>{
 	let page = req.query.page;
 	let threshold = req.query.threshold;
@@ -15,11 +34,17 @@ router.get('/getNotices',(req,res)=>{
 	})
 })
 
+router.get('/getNotice',(req,res)=>{
+	db.getNotice(req.query.id,(notice)=>{
+		res.send(JSON.parse(JSON.stringify(notice)));
+	})
+});
+
 router.get('/getNewNotice',(req,res)=>{
 	db.getNewNotice((notice)=>{
 		res.send(JSON.parse(JSON.stringify(notice)));
 	})
-})
+});
 
 router.get('/createNotice',(req,res)=>{
 	db.createNotice(
@@ -35,9 +60,25 @@ router.get('/createNotice',(req,res)=>{
 router.get('/countNotices',(req,res)=>{
 	db.countNotices(
 		(val)=>{
-			res.send(String(val)+'개')
+			res.send(Object.values(val[0]));
 		}
 	)
+})
+//제품=======================================================================
+router.post('/newProduct', upload.single('file'), function (req, res) {
+	let params = req.body;
+	// console.log(params);
+	// console.log(req.file);
+	db.createProduct(
+		params.name,
+		params.description,
+		req.file.filename,
+		()=>{
+
+		}
+	)
+	// console.log("갔냐?")
+	res.send("끼얏호우~~~~!");
 })
 
 module.exports = router;

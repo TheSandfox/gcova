@@ -7,7 +7,8 @@ var connection = mysql.createConnection({
 	dateStrings	: 'date'
 });
 
-const TABLE_NAME = 'notices';
+const TABLE_NAME_NOTICES = 'notices';
+const TABLE_NAME_PRODUCTS = 'products';
 
 function replaceEscape(raw) {
 	let rs = raw.replaceAll(`\\`,`\\\\`);
@@ -15,14 +16,30 @@ function replaceEscape(raw) {
 	return rs;
 }
 
+function getNotice(id,callback) {
+	if(isNaN(id)) {
+		callback([]);
+		return;
+	}
+	connection.query(
+		`
+		SELECT * FROM ${TABLE_NAME_NOTICES} WHERE id=${id}
+		`
+		,(err,notice)=>{
+			if(err) throw err;
+			callback(notice);
+		}
+	);
+}
+
 function countNotices(callback) {
 	connection.query(
 		`
-		SELECT COUNT(*) FROM ${TABLE_NAME}
+		SELECT COUNT(*) FROM ${TABLE_NAME_NOTICES}
 		`
 		,(err,val)=>{
 			if(err) throw err;
-			callback(val['COUNT(*)']);
+			callback(val);
 		}
 	);
 }
@@ -30,7 +47,7 @@ function countNotices(callback) {
 function getNotices(page,noticesPerPage,callback) {
 	connection.query(
 		`
-		SELECT * FROM ${TABLE_NAME} LIMIT ${noticesPerPage*page},${noticesPerPage}
+		SELECT id,title,date FROM ${TABLE_NAME_NOTICES} ORDER BY id DESC LIMIT ${noticesPerPage*page},${noticesPerPage}
 		`
 		,(err,notices)=>{
 			if(err) throw err;
@@ -42,7 +59,7 @@ function getNotices(page,noticesPerPage,callback) {
 function getNewNotice(callback) {
 	connection.query(
 		`
-		SELECT * FROM ${TABLE_NAME} ORDER BY id DESC LIMIT 1
+		SELECT * FROM ${TABLE_NAME_NOTICES} ORDER BY id DESC LIMIT 1
 		`
 		,(err,notice)=>{
 			if(err) throw err;
@@ -56,7 +73,7 @@ function createNotice(title,content,callback) {
 	content = replaceEscape(content);
 	connection.query(
 		`
-		INSERT INTO ${TABLE_NAME}(title,content,date) VALUES('${title}','${content}',NOW())
+		INSERT INTO ${TABLE_NAME_NOTICES}(title,content,date) VALUES('${title}','${content}',NOW())
 		`
 		,(err)=>{
 			if(err) throw err;
@@ -68,7 +85,23 @@ function createNotice(title,content,callback) {
 function clearNotices(callback) {
 	connection.query(
 		`
-		TRUNCATE TABLE ${TABLE_NAME}
+		TRUNCATE TABLE ${TABLE_NAME_NOTICES}
+		`
+		,(err)=>{
+			if(err) throw err;
+			callback();
+		}
+	);
+}
+
+function createProduct(name,description,img,callback) {
+	name = replaceEscape(name);
+	description = replaceEscape(description);
+	img = replaceEscape(img);
+	connection.query(
+		`
+		INSERT INTO ${TABLE_NAME_PRODUCTS}(name,description,img,date,update_date) 
+		VALUES('${name}','${description}','${img}',NOW(),NOW())
 		`
 		,(err)=>{
 			if(err) throw err;
@@ -78,9 +111,11 @@ function clearNotices(callback) {
 }
 
 module.exports = {
+	getNotice,
 	getNotices,
 	createNotice,
 	clearNotices,
 	countNotices,
-	getNewNotice
+	getNewNotice,
+	createProduct
 }

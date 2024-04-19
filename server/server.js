@@ -1,5 +1,6 @@
 // express 모듈 호출
 const express = require('express');
+const cookies = require('cookie-parser');
 const path = require('path');
 const multer  = require('multer');
 const storage = multer.diskStorage({
@@ -23,6 +24,7 @@ const app = express();
 const api = require('./routes/api_db');
 const PORT = process.env.PORT || 3001;
 
+app.use(cookies());
 app.use(express.json());
 app.use(cors({
 		origin: "*", // 출처 허용 옵션

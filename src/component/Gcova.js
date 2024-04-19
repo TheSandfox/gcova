@@ -1,21 +1,21 @@
 import 'css/index.css'
 
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 
 import Header from './Header';
 import Footer from './Footer';
 import Main from './pages/Main';
-import Notices from './pages/Notices';
-import Products from './pages/Products';
+import Notice from './pages/Notice';
+import Product from './pages/Product';
 
 export default function Gcova() {
-	return <BrowserRouter basename="/gcova">
+	return <>
 		<Header/>
 		<Routes>
 			<Route exact path='/' element={<Main/>} />
-			<Route path='/notices/*' element={<Notices/>} />
-			<Route path='/products/*' element={<Products/>} />
+			<Route path='/notice/*' element={<Notice/>} />
+			<Route path='/product/*' element={<Product/>} />
 		</Routes>
 		<Footer/>
-	</BrowserRouter>;
+	</>;
 }

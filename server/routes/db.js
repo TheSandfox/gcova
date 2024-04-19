@@ -103,6 +103,56 @@ function createProduct(name,description,img,callback) {
 		INSERT INTO ${TABLE_NAME_PRODUCTS}(name,description,img,date,update_date) 
 		VALUES('${name}','${description}','${img}',NOW(),NOW())
 		`
+		,(err,product)=>{
+			if(err) throw err;
+			callback(product);
+		}
+	);
+}
+
+function getProduct(id,callback) {
+	if(isNaN(id)) {
+		callback([]);
+		return;
+	}
+	connection.query(
+		`
+		SELECT * FROM ${TABLE_NAME_PRODUCTS} WHERE id=${id}
+		`
+		,(err,result)=>{
+			if(err) throw err;
+			callback(result);
+		}
+	);
+}
+
+function getProducts(page,productsPerPage,callback) {
+	connection.query(
+		`
+		SELECT * FROM ${TABLE_NAME_PRODUCTS} ORDER BY id DESC LIMIT ${productsPerPage*page},${productsPerPage}
+		`
+		,(err,products)=>{
+			if(err) throw err;
+			callback(products);
+		}
+	);
+}
+
+function editProduct(id,name,description,img,callback) {
+	id = parseInt(id);
+	name = replaceEscape(name);
+	description = replaceEscape(description);
+	img = replaceEscape(img);
+	if (isNaN(id)) {callback();return;}
+	connection.query(
+		`
+		UPDATE ${TABLE_NAME_PRODUCTS} 
+		SET name='${name}',
+		description='${description}',
+		img='${img}',
+		update_date=NOW()  
+		WHERE id=${id}
+		`
 		,(err)=>{
 			if(err) throw err;
 			callback();
@@ -117,5 +167,8 @@ module.exports = {
 	clearNotices,
 	countNotices,
 	getNewNotice,
-	createProduct
+	createProduct,
+	getProduct,
+	getProducts,
+	editProduct
 }

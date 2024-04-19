@@ -9,7 +9,7 @@ export default function Header() {
 			backgroundColor:'#ffcc00'
 		}}>
 		<Link to='/'>메인페이지</Link>
-		<Link to='/notices'>게시판</Link>
-		<Link to='/products/new'>새 제품 추가</Link>
+		<Link to='/notice/list'>게시판</Link>
+		<Link to='/product/list'>제품</Link>
 	</header>;
 }

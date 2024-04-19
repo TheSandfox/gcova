@@ -22,6 +22,8 @@ const db = require('./db');
 
 
 router.get('/test',(req,res)=>{
+	res.cookie('id2','TEEEEST22');
+	console.log(req.cookies);
 	res.send('Hello World!');
 })
 
@@ -29,6 +31,9 @@ router.get('/test',(req,res)=>{
 router.get('/getNotices',(req,res)=>{
 	let page = req.query.page;
 	let threshold = req.query.threshold;
+	console.log('//')
+	console.log('게시물가져오기')
+	console.log('//')
 	db.getNotices(page,threshold,(notices)=>{
 		res.send(JSON.parse(JSON.stringify(notices)));
 	})
@@ -65,7 +70,7 @@ router.get('/countNotices',(req,res)=>{
 	)
 })
 //제품=======================================================================
-router.post('/newProduct', upload.single('file'), function (req, res) {
+router.post('/createProduct', upload.single('file'), function (req, res) {
 	let params = req.body;
 	// console.log(params);
 	// console.log(req.file);
@@ -73,12 +78,55 @@ router.post('/newProduct', upload.single('file'), function (req, res) {
 		params.name,
 		params.description,
 		req.file.filename,
-		()=>{
-
+		(result)=>{
+			console.log(result);
+			console.log(result.insertId);
+			res.send([String(result.insertId)]);
+			// res.send(JSON.stringify(result));
 		}
 	)
-	// console.log("갔냐?")
-	res.send("끼얏호우~~~~!");
+})
+
+router.post('/editProduct', upload.single('file'), function (req, res) {
+	let params = req.body;
+	// console.log(params);
+	// console.log(req.file);
+	db.editProduct(
+		params.id,
+		params.name,
+		params.description,
+		req.file.filename,
+		()=>{
+			res.send("");
+		}
+	)
+})
+
+router.get('/getProduct',(req,res)=>{
+	let id = req.query.id
+	db.getProduct(
+		id,
+		(product)=>{
+			res.send(product);
+		}
+	)
+	// res.send([{
+	// 	name:'김김김',
+	// 	description:'나나나',
+	// 	img:'missing.png'
+	// }]);
+})
+
+router.get('/getProducts',(req,res)=>{
+	let page = req.query.page;
+	let threshold = req.query.threshold;
+	db.getProducts(page,threshold,(notices)=>{
+		res.send(JSON.parse(JSON.stringify(notices)));
+	})
+})
+
+router.post('/editProduct',(req,res)=>{
+
 })
 
 module.exports = router;
